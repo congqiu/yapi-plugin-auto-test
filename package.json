@@ -1,0 +1,17 @@
+{
+  "name": "yapi-plugin-auto-test",
+  "version": "0.0.1",
+  "description": "YAPI自动化测试插件，支持在YAPI设置测试计划，查看历史测试结果。",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:congqiu/yapi-plugin-auto-test.git"
+  },
+  "keywords": ["YAPI", "test", "plugin"],
+  "author": "congqiu",
+  "license": "ISC"
+}
