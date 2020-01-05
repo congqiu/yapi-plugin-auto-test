@@ -65,6 +65,11 @@ class testPlanController extends baseController {
         plan_cron: params.plan_cron,
         plan_url: params.plan_url,
         plan_result_size: params.plan_result_size,
+        notice_trigger: params.notice_trigger,
+        notifier: {
+          target: "workWX",
+          url: params.notifier_url
+        },
         uid: this.getUid()
       }
       let plan = await this.testPlanModel.save(data);
@@ -118,7 +123,12 @@ class testPlanController extends baseController {
         is_plan_open: params.is_plan_open,
         plan_cron: params.plan_cron,
         plan_url: params.plan_url,
-        plan_result_size: params.plan_result_size
+        plan_result_size: params.plan_result_size,
+        notice_trigger: params.notice_trigger,
+        notifier: {
+          target: "workWX",
+          url: params.notifier_url
+        }
       }
       await this.testPlanModel.update(id, data);
       let plan = await this.testPlanModel.find(id);

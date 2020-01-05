@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { formatTime } from "client/common.js";
-import { Form, Switch, Button, Input, Icon, Tooltip } from "antd";
+import { Form, Switch, Button, Input, Icon, Tooltip, Radio } from "antd";
 const FormItem = Form.Item;
 
 import "./index.scss"
@@ -42,7 +42,8 @@ export default class Add extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      auto_test_data: props.planMsg
+      auto_test_data: props.planMsg,
+      notifier_url: props.planMsg.notifier && props.planMsg.notifier.url
     };
   }
 
@@ -51,7 +52,8 @@ export default class Add extends Component {
     let params = {
       id: planMsg._id,
       project_id: planMsg.project_id,
-      is_plan_open: this.state.auto_test_data.is_plan_open
+      is_plan_open: this.state.auto_test_data.is_plan_open,
+      notifier_url: this.state.notifier_url
     };
     form.validateFields(async (err, values) => {
       if (!err) {
@@ -72,6 +74,14 @@ export default class Add extends Component {
   onChange = v => {
     let auto_test_data = this.state.auto_test_data;
     auto_test_data.is_plan_open = v;
+    this.setState({
+      auto_test_data: auto_test_data
+    });
+  }
+
+  onTriggerChange = v => {
+    let auto_test_data = this.state.auto_test_data;
+    auto_test_data.notice_trigger = v;
     this.setState({
       auto_test_data: auto_test_data
     });
@@ -208,6 +218,35 @@ export default class Add extends Component {
                 ],
                 validateTrigger: "onBlur",
                 initialValue: this.state.auto_test_data.plan_result_size
+              })(<Input />)}
+            </FormItem>
+
+            <FormItem {...formItemLayout} label="触发通知">
+              {getFieldDecorator("notice_trigger", {
+                initialValue: this.state.auto_test_data.notice_trigger || "any"
+              })(
+                <Radio.Group onChange={this.onTriggerChange}>
+                  <Radio value="any">执行结束</Radio>
+                  <Radio value="never">不发送</Radio>
+                  <Radio value="success">全部通过</Radio>
+                  <Radio value="fail">全部失败</Radio>
+                  <Radio value="part">部分通过</Radio>
+                </Radio.Group>
+              )}
+            </FormItem>
+            {/* <FormItem {...formItemLayout} label="类型通知">
+              {getFieldDecorator("notice_client", {
+                initialValue: "workWX"
+              })(
+                <Radio.Group onChange={this.onChange}>
+                  <Radio value="email">邮箱</Radio>
+                  <Radio value="workWX">企业微信</Radio>
+                </Radio.Group>
+              )}
+            </FormItem> */}
+            <FormItem {...formItemLayout} label={<span>企业微信机器人URL&nbsp;<a href="https://work.weixin.qq.com/api/doc/90000/90136/91770">文档</a></span>}>
+              {getFieldDecorator("notifier_url", {
+                initialValue: this.state.notifier_url
               })(<Input />)}
             </FormItem>
           </div>

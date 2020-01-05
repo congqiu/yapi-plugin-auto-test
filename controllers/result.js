@@ -5,6 +5,7 @@ const testPlanModel = require('./../models/plan');
 const yapi = require('yapi.js');
 const _ = require('underscore');
 const renderToHtml = require('../../../server/utils/reportHtml');
+const tools = require('../utils/tools')
 
 class testResultController extends openController {
   constructor(ctx) {
@@ -45,7 +46,6 @@ class testResultController extends openController {
     if (!this.$tokenAuth) {
       return (ctx.body = yapi.commons.resReturn(null, 40022, 'token 验证失败'));
     }
-    const token = ctx.query.token;
 
     const projectId = ctx.params.project_id;
     const planId = ctx.params.plan_id || -1;
@@ -163,10 +163,23 @@ class testResultController extends openController {
 
       if (planId && planId !== -1) {
         await this.testPlanModel.update(planId, {last_test_time: yapi.commons.time()});
+        let plan = await this.testPlanModel.find(planId);
+        let trigger = plan.notice_trigger, notifier = plan.notifier ? plan.notifier.url : "";
+        let successNum = reportsResult.message.successNum;
+        let isSend = (trigger === "any")
+                      || (trigger === "success" && reportsResult.message.failedNum === 0)
+                      || (trigger === "fail" && successNum === 0)
+                      || (trigger === "part" && successNum < reportsResult.message.len && successNum > 0);
+        if (isSend) {
+          let content = `<font color="warning">测试结果：</font>\n${reportsResult.message.msg}
+          \n访问以下[链接查看](${ctx.request.origin}/api/open/plugin/test/result?id=${saveResult._id})测试结果详情
+          `;
+          tools.sendWorkWX(notifier, content)
+        }
       }
 
       if (ctx.params.email === true && reportsResult.message.failedNum !== 0) {
-        let autoTestUrl = `${ctx.request.origin}/api/open/plugin/test/result?id=${saveResult._id}&token=${token}`;
+        let autoTestUrl = `${ctx.request.origin}/api/open/plugin/test/result?id=${saveResult._id}`;
         yapi.commons.sendNotice(projectId, {
           title: `YApi自动化测试报告`,
           content: `

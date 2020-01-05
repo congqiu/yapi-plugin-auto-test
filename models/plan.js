@@ -38,6 +38,16 @@ class testPlanModel extends baseModel {
         type: Number,
         default: 10
       },
+      
+      notifier: {
+        target: String,
+        url: String
+      },
+
+      notice_trigger: {
+        type: String,
+        enum: ["never", "any", "fail", "success", "part"]
+      },
 
       //上次执行时间
       last_test_time: {
