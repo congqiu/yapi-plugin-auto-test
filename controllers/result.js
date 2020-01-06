@@ -5,7 +5,9 @@ const testPlanModel = require('./../models/plan');
 const yapi = require('yapi.js');
 const _ = require('underscore');
 const renderToHtml = require('../../../server/utils/reportHtml');
-const tools = require('../utils/tools')
+const tools = require('../utils/tools');
+const Config = require('../utils/config');
+
 
 class testResultController extends openController {
   constructor(ctx) {
@@ -54,6 +56,8 @@ class testResultController extends openController {
     const reports = (this.reports = {});
     const testList = [], testColNames = [];
     let id = ctx.params.id;
+
+    const originUrl = Config.instance.host || ctx.request.origin;
 
     let extraIds = ctx.params.extraIds ? ctx.params.extraIds.split(',') : [];
     let curEnvList = this.handleEvnParams(ctx.params);
@@ -172,15 +176,15 @@ class testResultController extends openController {
                       || (trigger === "fail" && successNum === 0)
                       || (trigger === "part" && successNum < reportsResult.message.len && successNum > 0);
         if (isSend && notifier) {
-          let content = `测试结果：<font color="warning">${testData.status}</font>\n${reportsResult.message.msg}
-          \n访问以下[链接查看](${ctx.request.origin}/api/open/plugin/test/result?id=${saveResult._id})测试结果详情
+        let content = `测试结果：${plan.plan_name} 执行<font color="warning">${testData.status}</font>\n${reportsResult.message.msg}
+          \n访问以下[链接查看](${originUrl}/api/open/plugin/test/result?id=${saveResult._id})测试结果详情
           `;
           tools.sendWorkWX(notifier, content);
         }
       }
 
       if (ctx.params.email === true && reportsResult.message.failedNum !== 0) {
-        let autoTestUrl = `${ctx.request.origin}/api/open/plugin/test/result?id=${saveResult._id}`;
+        let autoTestUrl = `${originUrl}/api/open/plugin/test/result?id=${saveResult._id}`;
         yapi.commons.sendNotice(projectId, {
           title: `YApi自动化测试报告`,
           content: `

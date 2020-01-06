@@ -5,8 +5,10 @@ const plan = require('./controllers/plan');
 const result = require('./controllers/result');
 
 const schedule = require('./schedule');
+const Config = require('./utils/config');
 
-module.exports = function(){
+module.exports = function(options){
+  Config.instance = options;
   
   yapi.getInst(schedule);
 
