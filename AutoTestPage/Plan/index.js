@@ -223,7 +223,7 @@ export default class Add extends Component {
 
             <FormItem {...formItemLayout} label="触发通知">
               {getFieldDecorator("notice_trigger", {
-                initialValue: this.state.auto_test_data.notice_trigger || "any"
+                initialValue: this.state.auto_test_data.notice_trigger || "never"
               })(
                 <Radio.Group onChange={this.onTriggerChange}>
                   <Radio value="any">执行结束</Radio>

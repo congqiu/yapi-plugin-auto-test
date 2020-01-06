@@ -163,6 +163,7 @@ class testResultController extends openController {
 
       if (planId && planId !== -1) {
         await this.testPlanModel.update(planId, {last_test_time: yapi.commons.time()});
+
         let plan = await this.testPlanModel.find(planId);
         let trigger = plan.notice_trigger, notifier = plan.notifier ? plan.notifier.url : "";
         let successNum = reportsResult.message.successNum;
@@ -170,11 +171,11 @@ class testResultController extends openController {
                       || (trigger === "success" && reportsResult.message.failedNum === 0)
                       || (trigger === "fail" && successNum === 0)
                       || (trigger === "part" && successNum < reportsResult.message.len && successNum > 0);
-        if (isSend) {
+        if (isSend && notifier) {
           let content = `测试结果：<font color="warning">${testData.status}</font>\n${reportsResult.message.msg}
           \n访问以下[链接查看](${ctx.request.origin}/api/open/plugin/test/result?id=${saveResult._id})测试结果详情
           `;
-          tools.sendWorkWX(notifier, content)
+          tools.sendWorkWX(notifier, content);
         }
       }
 

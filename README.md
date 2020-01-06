@@ -14,6 +14,8 @@ yapi-plugin-auto-test
 ### 测试计划
 用户可以自定义多个测试计划，根据对应的设置项进行测试计划的设置。
 
+自定义通知目前只支持企业微信通知，如果url为空则不发送通知，邮件通知不受触发通知影响。
+
 ### 测试结果
 时间轴风格的测试结果列表，支持直接查看历史测试结果。注意：测试结果页面的清空会直接**清空**当前计划的历史测试结果，谨慎操作。
 
@@ -23,7 +25,8 @@ yapi-plugin-auto-test
 执行如下操作可以进行更新：
 1. 需要先清除ykit的缓存，删除`./vendors/node_modules/.ykit_cache`文件夹
 2. 修改package.json里面`yapi-plugin-auto-test`的版本或者直接`npm i yapi-plugin-auto-test@version`
-3. 在`./vendors/`目录中执行命令`NODE_ENV=production ykit pack -m`，再重启服务器就完成安装指定版本的插件
+3. 在`./vendors/`目录中执行命令`NODE_ENV=production ykit pack -m`
+4. 执行命令`yapi plugin --name yapi-plugin-auto-test`后再重启服务器就完成安装指定版本的插件
 
 
 
