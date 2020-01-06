@@ -171,7 +171,7 @@ class testResultController extends openController {
                       || (trigger === "fail" && successNum === 0)
                       || (trigger === "part" && successNum < reportsResult.message.len && successNum > 0);
         if (isSend) {
-          let content = `<font color="warning">测试结果：</font>\n${reportsResult.message.msg}
+          let content = `测试结果：<font color="warning">${testData.status}</font>\n${reportsResult.message.msg}
           \n访问以下[链接查看](${ctx.request.origin}/api/open/plugin/test/result?id=${saveResult._id})测试结果详情
           `;
           tools.sendWorkWX(notifier, content)
