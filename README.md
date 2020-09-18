@@ -41,8 +41,11 @@ yapi-plugin-auto-test
 4. 在config.json这层目录下执行命令`yapi plugin --name yapi-plugin-auto-test`后再重启服务器就完成安装指定版本的插件
 
 
-
 ### ChangeLog
+
+#### v0.0.5
+
+* 任务执行失败支持自动重试，重试期间中断定时执行，重试结束之后恢复定时任务
 
 #### v0.0.4
 
