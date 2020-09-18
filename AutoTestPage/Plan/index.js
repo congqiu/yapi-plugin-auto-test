@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { formatTime } from "client/common.js";
-import { Form, Switch, Button, Input, Icon, Tooltip, Radio } from "antd";
+import { Form, Switch, Button, Input, Icon, Tooltip, Radio, InputNumber } from "antd";
 const FormItem = Form.Item;
 
 import "./index.scss"
@@ -64,9 +64,9 @@ export default class Add extends Component {
   };
 
   componentWillMount() {
-    //默认每份钟同步一次,取一个随机数
+    //默认每小时随机数分钟同步一次
     this.setState({
-      random_corn: Math.round(Math.random()*60) + " * * * * *"
+      random_corn: "1 " + Math.round(Math.random() * 60) + " * * * *"
     });
   }
 
@@ -122,7 +122,7 @@ export default class Add extends Component {
             >
               执行一次
             </Button>) : null}
-            
+
             {this.state.auto_test_data.last_test_time != null ?
               (<div>上次执行时间: <span className="testtime">{formatTime(this.state.auto_test_data.last_test_time)}</span></div>) : null}
           </FormItem>
@@ -196,7 +196,7 @@ export default class Add extends Component {
                   <Icon type="question-circle-o" />
                 </Tooltip>
               </span>
-              }>
+            }>
               {getFieldDecorator("plan_result_size", {
                 rules: [
                   {
@@ -218,7 +218,41 @@ export default class Add extends Component {
                 ],
                 validateTrigger: "onBlur",
                 initialValue: this.state.auto_test_data.plan_result_size
-              })(<Input />)}
+              })(<InputNumber min={-1} />)}
+            </FormItem>
+
+            <FormItem {...formItemLayout} label={
+              <span>
+                失败后重复执行次数&nbsp;
+                <Tooltip title="当执行完成之后如果存在失败的情况会自动重新执行">
+                  <Icon type="question-circle-o" />
+                </Tooltip>
+              </span>
+            }>
+              {getFieldDecorator("plan_fail_retries", {
+                rules: [
+                  {
+                    required: true,
+                    message: "请输入次数"
+                  }, {
+                    validator: (rule, value, callback) => {
+                      if (value !== "") {
+                        if (!/^\d+$/.test(value)) {
+                          callback("请输入非负整数");
+                        } else if (parseInt(value, 10) > 10) {
+                          callback("考虑服务器压力，单个任务暂不支持10次以上重试");
+                        } else {
+                          callback();
+                        }
+                      } else {
+                        callback("请输入次数");
+                      }
+                    }
+                  }
+                ],
+                validateTrigger: "onBlur",
+                initialValue: this.state.auto_test_data.plan_fail_retries
+              })(<InputNumber min={0} />)}
             </FormItem>
 
             <FormItem {...formItemLayout} label="触发通知">

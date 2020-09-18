@@ -74,7 +74,7 @@ export default class Plan extends Component {
       message.error("请先保存当前新建的计划！");
       return;
     }
-    let data = { _id: 0, plan_name: "新增测试计划", project_id: this.props.projectMsg._id, is_plan_open: false, plan_result_size: 10 };
+    let data = { _id: 0, plan_name: "新增测试计划", project_id: this.props.projectMsg._id, is_plan_open: false, plan_result_size: 10, plan_fail_retries: 0 };
     let plans = [].concat(data, this.state.plans);
     this.handleClick(0, data, plans);
   };

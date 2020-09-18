@@ -38,6 +38,12 @@ class testPlanModel extends baseModel {
         type: Number,
         default: 10
       },
+
+      // 失败重试次数
+      plan_fail_retries: {
+        type: Number,
+        default: 0
+      },
       
       notifier: {
         target: String,

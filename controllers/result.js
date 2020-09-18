@@ -16,6 +16,7 @@ class testResultController extends openController {
     this.testResultModel = yapi.getInst(testResultModel);
     this.testPlanModel = yapi.getInst(testPlanModel);
     this.projectModel = yapi.getInst(projectModel);
+
     this.schemaMap = {
       runAutoTest: {
         '*id': 'number',
@@ -37,8 +38,9 @@ class testResultController extends openController {
         closeRemoveAdditional: true
       }
     };
+
   }
-  
+
   /**
    * 执行测试计划
    * @param {*} ctx 
@@ -56,6 +58,7 @@ class testResultController extends openController {
     const reports = (this.reports = {});
     const testList = [], testColNames = [];
     let id = ctx.params.id;
+    let retry = ctx.params.retry || 0;
 
     const originUrl = Config.instance.host || ctx.request.origin;
 
@@ -84,12 +87,12 @@ class testResultController extends openController {
       for (let i = 0, l = caseList.length; i < l; i++) {
         let item = caseList[i];
         let projectEvn = await this.projectModel.getByEnv(item.project_id);
-  
+
         item.id = item._id;
         let curEnvItem = _.find(curEnvList, key => {
           return key.project_id == item.project_id;
         });
-  
+
         item.case_env = curEnvItem ? curEnvItem.curEnv || item.case_env : item.case_env;
         item.req_headers = this.handleReqHeader(item.req_headers, projectEvn.env, item.case_env);
         item.pre_script = projectData.pre_script;
@@ -102,7 +105,7 @@ class testResultController extends openController {
         } catch (err) {
           result = err;
         }
-  
+
         reports[item.id] = result;
         records[item.id] = {
           params: result.params,
@@ -146,10 +149,8 @@ class testResultController extends openController {
       list: testList
     };
 
-    yapi.commons.log(reportsResult.message.msg);
-
     let mode = ctx.params.mode || 'html';
-    if(ctx.params.download === true) {
+    if (ctx.params.download === true) {
       ctx.set('Content-Disposition', `attachment; filename=test.${mode}`);
     }
     try {
@@ -166,19 +167,24 @@ class testResultController extends openController {
       let saveResult = await this.testResultModel.save(testData);
 
       if (planId && planId !== -1) {
-        await this.testPlanModel.update(planId, {last_test_time: yapi.commons.time()});
+        await this.testPlanModel.update(planId, { last_test_time: yapi.commons.time() });
 
         let plan = await this.testPlanModel.find(planId);
+
+        yapi.commons.log(`项目【${projectData.name}】下测试计划【${plan.plan_name}】执行结果：${reportsResult.message.msg}`);
+
         let trigger = plan.notice_trigger, notifier = plan.notifier ? plan.notifier.url : "";
-        let successNum = reportsResult.message.successNum;
+        let successNum = reportsResult.message.successNum, failedNum = reportsResult.message.failedNum;
+
+        // 是否发送通知
         let isSend = (trigger === "any")
-                      || (trigger === "success" && reportsResult.message.failedNum === 0)
-                      || (trigger === "fail" && successNum === 0)
-                      || (trigger === "part" && successNum < reportsResult.message.len && successNum > 0);
+          || (trigger === "success" && failedNum === 0)
+          || (trigger === "fail" && successNum === 0)
+          || (trigger === "part" && successNum < reportsResult.message.len && successNum > 0);
         if (isSend && notifier) {
-        let content = `测试结果：${plan.plan_name} 执行<font color="warning">${testData.status}</font>\n${reportsResult.message.msg}
-          \n访问以下[链接查看](${originUrl}/api/open/plugin/test/result?id=${saveResult._id})测试结果详情
-          `;
+          let content = `测试结果：${plan.plan_name} 执行<font color="${failedNum === 0 ? 'info' : 'warning'}">${testData.status}</font>\n${reportsResult.message.msg}
+            \n访问以下[链接查看](${originUrl}/api/open/plugin/test/result?id=${saveResult._id})测试结果详情
+            `;
           tools.sendWorkWX(notifier, content);
         }
       }

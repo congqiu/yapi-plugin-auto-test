@@ -36,7 +36,8 @@ class testPlanController extends baseController {
       plan_name: 'string',
       plan_url: 'string',
       plan_cron: 'string',
-      plan_result_size: 'number'
+      plan_result_size: 'number',
+      plan_fail_retries: 'number'
     });
 
     if (!params.plan_name) {
@@ -65,6 +66,7 @@ class testPlanController extends baseController {
         plan_cron: params.plan_cron,
         plan_url: params.plan_url,
         plan_result_size: params.plan_result_size,
+        plan_fail_retries: Math.min(Math.max(params.plan_fail_retries, 0), 10),
         notice_trigger: params.notice_trigger,
         notifier: {
           target: "workWX",
@@ -95,7 +97,8 @@ class testPlanController extends baseController {
       plan_name: 'string',
       plan_url: 'string',
       plan_cron: 'string',
-      plan_result_size: 'number'
+      plan_result_size: 'number',
+      plan_fail_retries: 'number'
     });
 
     if (!params.plan_name) {
@@ -124,6 +127,7 @@ class testPlanController extends baseController {
         plan_cron: params.plan_cron,
         plan_url: params.plan_url,
         plan_result_size: params.plan_result_size,
+        plan_fail_retries: Math.min(Math.max(params.plan_fail_retries, 0), 10),
         notice_trigger: params.notice_trigger,
         notifier: {
           target: "workWX",

@@ -15,7 +15,6 @@ class testSchedule {
 
         this.planModel = yapi.getInst(planModel);
         this.resultModel = yapi.getInst(resultModel);
-        this.resultController = yapi.getInst(resultController);
         this.init()
     }
 
@@ -48,18 +47,37 @@ class testSchedule {
         url += "&plan_id=" + planId;
 
 
-        let handlerPlan = async (planId, plan) => {
-            let result = await axios.get(url)
-            this.saveTestLog(plan.plan_name, result.data.message.msg, plan.uid, plan.project_id);
+        let handlerPlan = async (planId, plan, retry) => {
+            let result = await axios.get(url);
+            let data = result.data || { message: {} };
+            this.saveTestLog(plan.plan_name, data.message.msg, plan.uid, plan.project_id);
             if (plan.plan_result_size >= 0) {
                 let results = await this.resultModel.findByPlan(planId);
                 let ids = results.map((val) => val._id).slice(plan.plan_result_size);
                 await this.resultModel.deleteByIds(ids);
             }
+            let job = jobMap.get(planId);
+            if (data.message.failedNum !== 0 && plan.plan_fail_retries && plan.plan_fail_retries > retry) {
+                job && job.cancel();
+
+                let retryDate = new Date();
+                let seconds = retryDate.getSeconds();
+                retryDate.setSeconds(seconds + 60);
+                // 延迟60s执行重试
+                let retryItem = schedule.scheduleJob(retryDate, async () => {
+                    yapi.commons.log(`项目ID为【${plan.project_id}】下测试计划【${plan.plan_name}】失败后自动重试第${retry+1}次`);
+                    retryItem.cancel(); // 开始执行就取消重试的任务防止重复执行
+                    await handlerPlan(planId, plan, retry + 1);
+                });
+            } else if (retry > 0) {
+                // 重试过的任务不再重试就需要恢复
+                job && job.reschedule(plan.plan_cron);
+            }
         }
 
         let scheduleItem = schedule.scheduleJob(plan.plan_cron, async () => {
-            handlerPlan(planId, plan);
+            console.log(new Date())
+            handlerPlan(planId, plan, 0);
         });
 
         //判断是否已经存在这个任务
