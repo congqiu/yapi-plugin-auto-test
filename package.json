@@ -1,6 +1,6 @@
 {
   "name": "yapi-plugin-auto-test",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "YAPI自动化测试插件，支持在YAPI设置测试计划，查看历史测试结果，自定义通知。",
   "main": "index.js",
   "scripts": {
