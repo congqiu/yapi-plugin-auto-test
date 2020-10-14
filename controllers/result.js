@@ -173,14 +173,14 @@ class testResultController extends openController {
 
         yapi.commons.log(`项目【${projectData.name}】下测试计划【${plan.plan_name}】执行结果：${reportsResult.message.msg}`);
 
-        let trigger = plan.notice_trigger, notifier = plan.notifier ? plan.notifier.url : "";
+        let triggers = plan.notice_triggers || [plan.notice_trigger], notifier = plan.notifier ? plan.notifier.url : "";
         let successNum = reportsResult.message.successNum, failedNum = reportsResult.message.failedNum;
 
         // 是否发送通知
-        let isSend = (trigger === "any")
-          || (trigger === "success" && failedNum === 0)
-          || (trigger === "fail" && successNum === 0)
-          || (trigger === "part" && successNum < reportsResult.message.len && successNum > 0);
+        let isSend = (triggers.includes("any")) // 任何情况下都发送
+          || (triggers.includes("success") && failedNum === 0) // 成功才发送
+          || (triggers.includes("fail") && successNum === 0) // 失败才发送
+          || (triggers.includes("part") && successNum < reportsResult.message.len && successNum > 0); // 部分成功才发送
         if (isSend && notifier) {
           let content = `测试结果：${plan.plan_name} 执行<font color="${failedNum === 0 ? 'info' : 'warning'}">${testData.status}</font>\n${reportsResult.message.msg}
             \n访问以下[链接查看](${originUrl}/api/open/plugin/test/result?id=${saveResult._id})测试结果详情

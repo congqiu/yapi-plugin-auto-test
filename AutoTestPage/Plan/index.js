@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { formatTime } from "client/common.js";
-import { Form, Switch, Button, Input, Icon, Tooltip, Radio, InputNumber } from "antd";
+import { Form, Switch, Button, Input, Icon, Tooltip, Checkbox, InputNumber } from "antd";
 const FormItem = Form.Item;
 
 import "./index.scss"
@@ -29,6 +29,15 @@ const tailFormItemLayout = {
   }
 };
 
+
+const triggerOptions = [
+  { label: "执行结束", value: "any" },
+  { label: "不发送", value: "never" },
+  { label: "全部通过", value: "success" },
+  { label: "全部失败", value: "fail" },
+  { label: "部分失败", value: "part" }
+];
+
 @Form.create()
 export default class Add extends Component {
   static propTypes = {
@@ -45,6 +54,14 @@ export default class Add extends Component {
       auto_test_data: props.planMsg,
       notifier_url: props.planMsg.notifier && props.planMsg.notifier.url
     };
+  }
+
+  // 获取兼容后的触发器
+  getCompatibleTrigger = plan => {
+    if (!plan.notice_triggers && plan.notice_trigger) {
+      return [plan.notice_trigger];
+    }
+    return plan.notice_triggers || ["never"];
   }
 
   handleSubmit = async () => {
@@ -81,7 +98,7 @@ export default class Add extends Component {
 
   onTriggerChange = v => {
     let auto_test_data = this.state.auto_test_data;
-    auto_test_data.notice_trigger = v;
+    auto_test_data.notice_triggers = v;
     this.setState({
       auto_test_data: auto_test_data
     });
@@ -256,16 +273,13 @@ export default class Add extends Component {
             </FormItem>
 
             <FormItem {...formItemLayout} label="触发通知">
-              {getFieldDecorator("notice_trigger", {
-                initialValue: this.state.auto_test_data.notice_trigger || "never"
+              {getFieldDecorator("notice_triggers", {
+                initialValue: this.getCompatibleTrigger(this.state.auto_test_data)
               })(
-                <Radio.Group onChange={this.onTriggerChange}>
-                  <Radio value="any">执行结束</Radio>
-                  <Radio value="never">不发送</Radio>
-                  <Radio value="success">全部通过</Radio>
-                  <Radio value="fail">全部失败</Radio>
-                  <Radio value="part">部分通过</Radio>
-                </Radio.Group>
+                <Checkbox.Group
+                options={triggerOptions}
+                onChange={this.onTriggerChange}
+              />
               )}
             </FormItem>
             {/* <FormItem {...formItemLayout} label="类型通知">

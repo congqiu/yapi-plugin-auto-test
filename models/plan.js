@@ -50,9 +50,16 @@ class testPlanModel extends baseModel {
         url: String
       },
 
+      // 废弃，保留兼容
       notice_trigger: {
         type: String,
         enum: ["never", "any", "fail", "success", "part"]
+      },
+
+      notice_triggers: {
+        type: [String],
+        enum: ["never", "any", "fail", "success", "part"],
+        default: ["never"]
       },
 
       //上次执行时间

@@ -67,7 +67,7 @@ class testPlanController extends baseController {
         plan_url: params.plan_url,
         plan_result_size: params.plan_result_size,
         plan_fail_retries: Math.min(Math.max(params.plan_fail_retries, 0), 10),
-        notice_trigger: params.notice_trigger,
+        notice_triggers: params.notice_triggers,
         notifier: {
           target: "workWX",
           url: params.notifier_url
@@ -128,11 +128,14 @@ class testPlanController extends baseController {
         plan_url: params.plan_url,
         plan_result_size: params.plan_result_size,
         plan_fail_retries: Math.min(Math.max(params.plan_fail_retries, 0), 10),
-        notice_trigger: params.notice_trigger,
+        notice_triggers: params.notice_triggers,
         notifier: {
           target: "workWX",
           url: params.notifier_url
         }
+      }
+      if (params.notice_trigger) {
+        data.notice_trigger = "";
       }
       await this.testPlanModel.update(id, data);
       let plan = await this.testPlanModel.find(id);
