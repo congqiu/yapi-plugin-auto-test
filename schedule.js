@@ -1,10 +1,10 @@
 const schedule = require('node-schedule');
 const planModel = require('./models/plan');
 const resultModel = require('./models/result');
-const resultController = require('./controllers/result');
 const yapi = require('yapi.js');
 const axios = require('axios');
 const jobMap = new Map();
+const retryMap = new Map();
 
 /**
  * 定时执行测试计划
@@ -62,13 +62,14 @@ class testSchedule {
 
                 let retryDate = new Date();
                 let seconds = retryDate.getSeconds();
-                retryDate.setSeconds(seconds + 60);
-                // 延迟60s执行重试
+                retryDate.setSeconds(seconds + 60 * (retry + 1));
+                // 延迟60 * 次数s执行重试
                 let retryItem = schedule.scheduleJob(retryDate, async () => {
                     yapi.commons.log(`项目ID为【${plan.project_id}】下测试计划【${plan.plan_name}】失败后自动重试第${retry+1}次`);
-                    retryItem.cancel(); // 开始执行就取消重试的任务防止重复执行
+                    this.deleteRetryJob(planId); // 开始执行就取消重试的任务防止重复执行
                     await handlerPlan(planId, plan, retry + 1);
                 });
+                this.addRetryJob(planId, retryItem)
             } else if (retry > 0) {
                 // 重试过的任务不再重试就需要恢复
                 job && job.reschedule(plan.plan_cron);
@@ -76,7 +77,6 @@ class testSchedule {
         }
 
         let scheduleItem = schedule.scheduleJob(plan.plan_cron, async () => {
-            console.log(new Date())
             handlerPlan(planId, plan, 0);
         });
 
@@ -105,6 +105,7 @@ class testSchedule {
         if (jobItem) {
             jobItem.cancel();
         }
+        this.deleteRetryJob(planId);
     }
 
     // 动态中添加测试结果
@@ -116,6 +117,30 @@ class testSchedule {
             username: "自动化测试",
             typeid: projectId
         });
+    }
+
+    /**
+     * 添加重试计划
+     * @param {*} planId 
+     * @param {*} retryItem 
+     */
+    addRetryJob(planId, retryItem) {
+        let jobItem = retryMap.get(planId);
+        if (jobItem) {
+            jobItem.cancel();
+        }
+        retryMap.set(planId, retryItem)
+    }
+
+    /**
+     * 删除重试计划
+     * @param {测试计划id} planId 
+     */
+    deleteRetryJob(planId) {
+        let jobItem = retryMap.get(planId);
+        if (jobItem) {
+            jobItem.cancel();
+        }
     }
 }
 
