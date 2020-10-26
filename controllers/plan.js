@@ -113,7 +113,7 @@ class testPlanController extends baseController {
       return (ctx.body = yapi.commons.resReturn(null, 400, 'Cron表达式不能为空'));
     }
 
-    let checkRepeat = await this.testPlanModel.findByName(params.plan_name);
+    let checkRepeat = await this.testPlanModel.findByName(params.plan_name, params.project_id);
 
     if (checkRepeat && checkRepeat._id !== id) {
       return (ctx.body = yapi.commons.resReturn(null, 401, '计划名重复'));

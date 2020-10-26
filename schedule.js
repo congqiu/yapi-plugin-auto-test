@@ -48,31 +48,35 @@ class testSchedule {
 
 
         let handlerPlan = async (planId, plan, retry) => {
-            let result = await axios.get(url);
-            let data = result.data || { message: {} };
-            this.saveTestLog(plan.plan_name, data.message.msg, plan.uid, plan.project_id);
-            if (plan.plan_result_size >= 0) {
-                let results = await this.resultModel.findByPlan(planId);
-                let ids = results.map((val) => val._id).slice(plan.plan_result_size);
-                await this.resultModel.deleteByIds(ids);
-            }
-            let job = jobMap.get(planId);
-            if (data.message.failedNum !== 0 && plan.plan_fail_retries && plan.plan_fail_retries > retry) {
-                job && job.cancel();
+            try {
+                let result = await axios.get(url);
+                let data = result.data || { message: {} };
+                this.saveTestLog(plan.plan_name, data.message.msg, plan.uid, plan.project_id);
+                if (plan.plan_result_size >= 0) {
+                    let results = await this.resultModel.findByPlan(planId);
+                    let ids = results.map((val) => val._id).slice(plan.plan_result_size);
+                    await this.resultModel.deleteByIds(ids);
+                }
+                let job = jobMap.get(planId);
+                if (data.message.failedNum !== 0 && plan.plan_fail_retries && plan.plan_fail_retries > retry) {
+                    job && job.cancel();
 
-                let retryDate = new Date();
-                let seconds = retryDate.getSeconds();
-                retryDate.setSeconds(seconds + 60 * (retry + 1));
-                // 延迟60 * 次数s执行重试
-                let retryItem = schedule.scheduleJob(retryDate, async () => {
-                    yapi.commons.log(`项目ID为【${plan.project_id}】下测试计划【${plan.plan_name}】失败后自动重试第${retry+1}次`);
-                    this.deleteRetryJob(planId); // 开始执行就取消重试的任务防止重复执行
-                    await handlerPlan(planId, plan, retry + 1);
-                });
-                this.addRetryJob(planId, retryItem)
-            } else if (retry > 0) {
-                // 重试过的任务不再重试就需要恢复
-                job && job.reschedule(plan.plan_cron);
+                    let retryDate = new Date();
+                    let seconds = retryDate.getSeconds();
+                    retryDate.setSeconds(seconds + 60 * (retry + 1));
+                    // 延迟60 * 次数s执行重试
+                    let retryItem = schedule.scheduleJob(retryDate, async () => {
+                        yapi.commons.log(`项目ID为【${plan.project_id}】下测试计划【${plan.plan_name}】失败后自动重试第${retry+1}次`);
+                        this.deleteRetryJob(planId); // 开始执行就取消重试的任务防止重复执行
+                        await handlerPlan(planId, plan, retry + 1);
+                    });
+                    this.addRetryJob(planId, retryItem)
+                } else if (retry > 0) {
+                    // 重试过的任务不再重试就需要恢复
+                    job && job.reschedule(plan.plan_cron);
+                }
+            } catch (e) {
+                yapi.commons.log(`项目ID为【${plan.project_id}】下测试计划【${plan.plan_name}】配置有误，请检查后重新配置。`);
             }
         }
 

@@ -91,8 +91,8 @@ class testPlanModel extends baseModel {
     return this.model.findOne({ _id: id });
   }
 
-  findByName(name) {
-    return this.model.findOne({ plan_name: name });
+  findByName(name, project_id) {
+    return this.model.findOne({ plan_name: name, project_id });
   }
 
   findByProject(id) {
