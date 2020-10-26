@@ -86,8 +86,16 @@ export default class Plan extends Component {
       return index !== key;
     });
     let delPlan = plans.find((val, index) => index === key);
-    this.handleClick(0, currPlans[0], currPlans);
-    delPlan._id && await axios.delete("/api/plugin/test/plan/del?id=" + delPlan._id);
+    if (delPlan._id) {
+      let result =await axios.delete(`/api/plugin/test/plan/del?id=${delPlan._id}&project_id=${this.props.projectMsg._id}`);
+      if (result.data.errcode === 0) {
+        this.handleClick(0, currPlans[0], currPlans);
+      } else {
+        message.error(result.data.errmsg);
+      }
+    } else {
+      this.handleClick(0, currPlans[0], currPlans);
+    }
   }
 
   enterItem = key => {
@@ -231,7 +239,7 @@ export default class Plan extends Component {
                   }
                   key="2"
                 >
-                  <Result planId={this.state.currentPlanMsg._id} />
+                  <Result planId={this.state.currentPlanMsg._id} projectId={this.props.projectMsg._id} />
                 </Tabs.TabPane>
               </Tabs>
             </Content>

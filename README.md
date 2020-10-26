@@ -1,7 +1,7 @@
 yapi-plugin-auto-test
 ===
 
-在分组的项目导航栏中加入*自动化测试*标签，支持直接在项目中设置服务端测试计划。
+在分组的项目导航栏中加入*自动化测试*标签，支持直接在项目中设置服务端测试计划。使用过程中如果碰到任何bug或有任何好的的建议欢迎issue。
 
 ### 安装
 
@@ -19,20 +19,23 @@ yapi-plugin-auto-test
 
 第三步： 重启服务器
 
-
 ### 使用
 
 #### 测试计划
+
+![设置测试计划](./screenshot/setting.png)
 用户可以自定义多个测试计划，根据对应的设置项进行测试计划的设置。
 
 自定义通知目前只支持企业微信通知，如果url为空则不发送通知，邮件通知不受触发通知影响。
 
 #### 测试结果
+
+![查看测试结果](./screenshot/result.png)
 时间轴风格的测试结果列表，支持直接查看历史测试结果。注意：测试结果页面的清空会直接**清空**当前计划的历史测试结果，谨慎操作。
 
 
 ### 更新
-通过yapi-cli更新插件还是比较麻烦的，直接再执行一次命令并不会更新。因为yapi-cli安装插件实际上就是在vendors目录下执行`npm install  --registry https://registry.npm.taobao.org yapi-plugin-auto-test`，所以最后会在package.json文件中记录下开始安装的版本号，再次执行安装的还是同一个版本。
+通过yapi-cli更新插件还是比较麻烦的，直接再执行一次命令并不会更新。因为yapi-cli安装插件实际上就是在vendors目录下执行`npm install --registry https://registry.npm.taobao.org yapi-plugin-auto-test`，所以最后会在package.json文件中记录下开始安装的版本号，再次执行安装的还是同一个版本。
 
 执行如下操作可以进行更新：
 1. 需要先清除ykit的缓存，删除`./vendors/node_modules/.ykit_cache`文件夹
@@ -42,6 +45,11 @@ yapi-plugin-auto-test
 
 
 ### ChangeLog
+
+#### v1.0.0
+
+* 修复重名校验问题，只校验当前项目
+* 增加接口权限控制
 
 #### v0.0.6
 

@@ -58,7 +58,6 @@ class testResultController extends openController {
     const reports = (this.reports = {});
     const testList = [], testColNames = [];
     let id = ctx.params.id;
-    let retry = ctx.params.retry || 0;
 
     const originUrl = Config.instance.host || ctx.request.origin;
 
@@ -264,6 +263,11 @@ class testResultController extends openController {
   async delTestResults(ctx) {
     try {
       const plan_id = ctx.params.plan_id;
+
+      if ((await this.checkAuth(ctx.params.project_id, 'project', 'edit')) !== true) {
+        return (ctx.body = yapi.commons.resReturn(null, 405, '没有权限删除'));
+      }
+
       let result = await this.testResultModel.deleteAll(plan_id);
       ctx.body = yapi.commons.resReturn(result);
     } catch (e) {

@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
-import { Layout, Timeline, Icon, Spin, Row, Button, Popconfirm } from "antd";
+import { Layout, Timeline, Icon, Spin, Row, Button, Popconfirm, message } from "antd";
 const { Content } = Layout;
 import axios from 'axios';
 import { formatTime } from 'client/common.js';
@@ -49,9 +49,13 @@ export default class Result extends Component {
 
   // 清空测试结果
   clearResults = async () => {
-    let planId = this.props.planId;
-    await axios.delete('/api/plugin/test/results/del?plan_id=' + planId);
-    this.setState({ results: [] });
+    let {planId, projectId} = this.props;
+    let result = await axios.delete(`/api/plugin/test/results/del?plan_id=${planId}&project_id=${projectId}`);
+    if (result.data.errcode === 0) {
+      this.setState({ results: [] });
+    } else {
+      message.error(result.data.errmsg);
+    }
   }
 
   render() {

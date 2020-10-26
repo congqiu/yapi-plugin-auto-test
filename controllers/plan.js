@@ -18,6 +18,11 @@ class testPlanController extends baseController {
   async getTestPlans(ctx) {
     try {
       const projectId = ctx.params.project_id;
+
+      if ((await this.checkAuth(projectId, 'project', 'view')) !== true) {
+        return (ctx.body = yapi.commons.resReturn(null, 405, '没有权限'));
+      }
+
       let plans = await this.testPlanModel.findByProject(projectId)
       ctx.body = yapi.commons.resReturn(plans);
     } catch (e) {
@@ -40,6 +45,10 @@ class testPlanController extends baseController {
       plan_fail_retries: 'number'
     });
 
+    if ((await this.checkAuth(params.project_id, 'project', 'edit')) !== true) {
+      return (ctx.body = yapi.commons.resReturn(null, 405, '没有权限添加'));
+    }
+
     if (!params.plan_name) {
       return (ctx.body = yapi.commons.resReturn(null, 400, '计划名不能为空'));
     }
@@ -52,7 +61,7 @@ class testPlanController extends baseController {
       return (ctx.body = yapi.commons.resReturn(null, 400, 'Cron表达式不能为空'));
     }
 
-    let checkRepeat = await this.testPlanModel.findByName(params.plan_name);
+    let checkRepeat = await this.testPlanModel.findByName(params.plan_name, params.project_id);
 
     if (checkRepeat) {
       return (ctx.body = yapi.commons.resReturn(null, 401, '计划名重复'));
@@ -100,6 +109,10 @@ class testPlanController extends baseController {
       plan_result_size: 'number',
       plan_fail_retries: 'number'
     });
+
+    if ((await this.checkAuth(params.project_id, 'project', 'edit')) !== true) {
+      return (ctx.body = yapi.commons.resReturn(null, 405, '没有权限更新'));
+    }
 
     if (!params.plan_name) {
       return (ctx.body = yapi.commons.resReturn(null, 400, '计划名不能为空'));
@@ -161,6 +174,10 @@ class testPlanController extends baseController {
 
       if (!id) {
         return (ctx.body = yapi.commons.resReturn(null, 400, 'id不能为空'));
+      }
+
+      if ((await this.checkAuth(ctx.params.project_id, 'project', 'edit')) !== true) {
+        return (ctx.body = yapi.commons.resReturn(null, 405, '没有权限删除'));
       }
 
       let result = await this.testPlanModel.del(id)
