@@ -184,7 +184,7 @@ class testResultController extends openController {
           let content = `测试结果：${plan.plan_name} 执行<font color="${failedNum === 0 ? 'info' : 'warning'}">${testData.status}</font>\n${reportsResult.message.msg}
             \n访问以下[链接查看](${originUrl}/api/open/plugin/test/result?id=${saveResult._id})测试结果详情
             `;
-          tools.sendWorkWX(notifier, content);
+          tools.sendMessage(notifier, `【${projectData.name}】的测试计划【${plan.plan_name}】执行通知`, content);
         }
       }
 

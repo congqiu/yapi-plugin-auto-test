@@ -282,20 +282,10 @@ export default class Add extends Component {
               />
               )}
             </FormItem>
-            {/* <FormItem {...formItemLayout} label="类型通知">
-              {getFieldDecorator("notice_client", {
-                initialValue: "workWX"
-              })(
-                <Radio.Group onChange={this.onChange}>
-                  <Radio value="email">邮箱</Radio>
-                  <Radio value="workWX">企业微信</Radio>
-                </Radio.Group>
-              )}
-            </FormItem> */}
-            <FormItem {...formItemLayout} label={<span>企业微信机器人URL&nbsp;<a href="https://work.weixin.qq.com/api/doc/90000/90136/91770">文档</a></span>}>
+            <FormItem {...formItemLayout} label={<span>通知机器人URL&nbsp;<a href="https://github.com/congqiu/yapi-plugin-auto-test/blob/master/README.md#%E6%B5%8B%E8%AF%95%E8%AE%A1%E5%88%92">文档</a></span>}>
               {getFieldDecorator("notifier_url", {
                 initialValue: this.state.notifier_url
-              })(<Input />)}
+              })(<Input placeholder="企业微信、钉钉机器人完整地址或自定义webhook的地址" />)}
             </FormItem>
           </div>
           <FormItem {...tailFormItemLayout}>

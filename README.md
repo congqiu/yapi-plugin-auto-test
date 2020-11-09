@@ -26,7 +26,7 @@ yapi-plugin-auto-test
 ![设置测试计划](./screenshot/setting.png)
 用户可以自定义多个测试计划，根据对应的设置项进行测试计划的设置。
 
-自定义通知目前只支持企业微信通知，如果url为空则不发送通知，邮件通知不受触发通知影响。
+通知机器人支持目前支持企业微信机器人、钉钉机器人以及自定义webhook，如果url为空则不发送通知，邮件通知不受触发通知影响。如果是企业微信或钉钉机器人直接复制机器人地址即可。
 
 #### 测试结果
 
@@ -35,6 +35,7 @@ yapi-plugin-auto-test
 
 
 ### 更新
+
 通过yapi-cli更新插件还是比较麻烦的，直接再执行一次命令并不会更新。因为yapi-cli安装插件实际上就是在vendors目录下执行`npm install --registry https://registry.npm.taobao.org yapi-plugin-auto-test`，所以最后会在package.json文件中记录下开始安装的版本号，再次执行安装的还是同一个版本。
 
 执行如下操作可以进行更新：
@@ -43,8 +44,16 @@ yapi-plugin-auto-test
 3. 在`./vendors/`目录中执行命令`NODE_ENV=production ykit pack -m`
 4. 在config.json这层目录下执行命令`yapi plugin --name yapi-plugin-auto-test`后再重启服务器就完成安装指定版本的插件
 
+### 注意事项
+
+1. 企业微信每个机器人发送的消息不能超过20条/分钟，最新内容参考[消息发送频率限制](https://work.weixin.qq.com/api/doc/90000/90136/91770#%E6%B6%88%E6%81%AF%E5%8F%91%E9%80%81%E9%A2%91%E7%8E%87%E9%99%90%E5%88%B6)。
+2. 钉钉每个机器人每分钟最多发送20条，参考[消息发送频率限制](https://ding-doc.dingtalk.com/doc#/serverapi2/qf2nxq)。
 
 ### ChangeLog
+
+#### v1.0.1
+
+* 结果通知支持更多方式
 
 #### v1.0.0
 
