@@ -277,12 +277,12 @@ export default class Add extends Component {
                 initialValue: this.getCompatibleTrigger(this.state.auto_test_data)
               })(
                 <Checkbox.Group
-                options={triggerOptions}
-                onChange={this.onTriggerChange}
-              />
+                  options={triggerOptions}
+                  onChange={this.onTriggerChange}
+                />
               )}
             </FormItem>
-            <FormItem {...formItemLayout} label={<span>通知机器人URL&nbsp;<a href="https://github.com/congqiu/yapi-plugin-auto-test/blob/master/README.md#%E6%B5%8B%E8%AF%95%E8%AE%A1%E5%88%92">文档</a></span>}>
+            <FormItem {...formItemLayout} label={<span>通知机器人URL&nbsp;<a rel="noopener noreferrer" target="_blank" href="https://github.com/congqiu/yapi-plugin-auto-test/blob/master/README.md#%E6%B5%8B%E8%AF%95%E8%AE%A1%E5%88%92">文档</a></span>}>
               {getFieldDecorator("notifier_url", {
                 initialValue: this.state.notifier_url
               })(<Input placeholder="企业微信、钉钉机器人完整地址或自定义webhook的地址" />)}
